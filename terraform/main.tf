@@ -42,10 +42,10 @@ module "k8s_app" {
   container_image  = var.container_image
 }
 
-# module "alb_ingress" {
-#   source           = "./modules/alb-ingress"
-#   cluster_endpoint = module.eks.cluster_endpoint
-#   cluster_ca       = module.eks.cluster_ca
-#   cluster_token    = module.eks.cluster_token
-#   service_name     = module.k8s_app.service_name
-# }
+module "alb_ingress" {
+  source           = "./modules/alb-ingress"
+  cluster_endpoint = module.eks.cluster_endpoint
+  cluster_ca       = module.eks.cluster_ca
+  cluster_token    = module.eks.cluster_token
+  service_name     = module.k8s_app.service_name
+}
