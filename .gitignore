@@ -1,2 +1,39 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
+
+
+# Local .terraform directory
+.terraform/
+
+# Terraform state files
+*.tfstate
+*.tfstate.backup
+
+# Crash log files
+crash.log
+
+# Ignore override files as they are usually for local use only
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Terraform plan output
+*.plan
+
+# Sensitive secrets or credentials files (user-specific)
+.terraform.lock.hcl
+terraform.tfvars
+terraform.tfvars.json
+
+# IDE/editor settings (optional)
+.vscode/
+.idea/
+*.swp
+
+# OS-specific junk files
+.DS_Store
+Thumbs.db
+
