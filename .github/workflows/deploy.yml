@@ -5,9 +5,11 @@ on:
     # branches: [ main ] - Test build on push
 
 env:
-  AWS_REGION: us-east-1
-  IMAGE_NAME: karankale/simple-time-service
-  IMAGE_TAG: v1
+  IMAGE_REPO: karankale/simple-time-service
+  REGISTRY: docker.io
+  # Compute image tag: if tag present, use that; else branch-SHA
+  IMAGE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || format('{0}-{1}', github.ref_name, github.sha.substr(0,7)) }}
+  IMAGE_NAME: ${{ env.REGISTRY }}/${{ env.IMAGE_REPO }}:${{ env.IMAGE_TAG }}
 
 jobs:
   docker-build-and-publish:
