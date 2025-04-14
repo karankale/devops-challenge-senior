@@ -26,7 +26,8 @@ jobs:
             BRANCH=$(echo "${GITHUB_REF_NAME}" | tr '/' '-')
             echo "IMAGE_TAG=${BRANCH}-${GITHUB_SHA::7}" >> $GITHUB_ENV
           fi
-          echo "IMAGE_NAME=${{ env.REGISTRY }}/${{ env.IMAGE_REPO }}:${IMAGE_TAG}" >> $GITHUB_ENV
+
+          echo "IMAGE_NAME=${REGISTRY}/${IMAGE_REPO}" >> $GITHUB_ENV
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
