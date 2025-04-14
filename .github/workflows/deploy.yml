@@ -2,7 +2,7 @@ name: Build, Scan, Sign, and Deploy
 
 on:
   push:
-    branches: [ main ]
+    # branches: [ main ] - Test build on push
 
 env:
   AWS_REGION: us-east-1
