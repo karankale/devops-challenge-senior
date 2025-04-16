@@ -67,7 +67,7 @@ jobs:
         with:
           terraform_version: 1.11.3
 
-      - name: Change Directory to Terraform Root
+      - name: Terraform Plan
         working-directory: ./terraform
         run: |
           terraform init -input=false
