@@ -45,5 +45,3 @@ jobs:
 
       - name: Push Docker Image to Amazon ECR
         run: docker push $IMAGE_NAME
-
-
