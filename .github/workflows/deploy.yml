@@ -45,3 +45,35 @@ jobs:
 
       - name: Push Docker Image to Amazon ECR
         run: docker push $IMAGE_NAME
+
+
+  terraform:
+    name: Terraform Init → Plan → Apply
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.11.3
+
+      - name: Change Directory to Terraform Root
+        working-directory: ./terraform
+        run: |
+          terraform init -input=false
+          terraform validate
+          terraform plan -out=tfplan -input=false
+
+      - name: Terraform Apply
+        working-directory: ./terraform
+        run: terraform apply -input=false -auto-approve tfplan
