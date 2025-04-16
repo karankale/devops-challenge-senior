@@ -171,23 +171,13 @@ Example job snippet:
     terraform plan -out=tfplan
     terraform apply -auto-approve tfplan
 ```
-
----
-
-##  Optional Cleanup
-
-```bash
-mv bootstrap-backend.tf bootstrap/
-echo "bootstrap-backend.tf" >> .gitignore
-```
-
 ---
 
 ## 5. Deploy Application with new docker image
 Get the docker image tag from the `docker-build-and-publish` Github Actions tab (check for the current run and get the image from the `Build and tag docker image` action)
 Update the docker image tag in the `terraform/modules/k8s-app/main.tf`
 
-## 5. Access the Application
+## 6. Access the Application
 
 Once deployed, run:
 
