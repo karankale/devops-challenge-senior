@@ -1,4 +1,3 @@
-# Attach ELB and ECR read-only policies to EKS node group role
 resource "aws_iam_role_policy_attachment" "eks_node_elb" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
   role       = module.eks.node_group_iam_role_name
