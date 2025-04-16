@@ -15,9 +15,9 @@ resource "aws_eks_access_entry" "admin" {
 }
 
 resource "aws_eks_access_policy_association" "admin_policy" {
-  cluster_name       = module.eks.cluster_name
-  policy_arn         = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-  principal_arn      = aws_eks_access_entry.admin.principal_arn
+  cluster_name  = module.eks.cluster_name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn = aws_eks_access_entry.admin.principal_arn
   access_scope {
     type = "cluster"
   }
@@ -27,7 +27,7 @@ resource "null_resource" "wait_for_eks" {
   depends_on = [module.eks]
 
   provisioner "local-exec" {
-    command = <<EOT
+    command     = <<EOT
       echo "Waiting for EKS cluster to become ready..."
       for i in {1..60}; do
         aws eks describe-cluster --name ${module.eks.cluster_name} --region ${var.aws_region} \
@@ -51,8 +51,8 @@ module "eks" {
 }
 
 module "k8s-app" {
-  source = "./modules/k8s-app"
-  depends_on = [null_resource.wait_for_eks]  
+  source       = "./modules/k8s-app"
+  depends_on   = [null_resource.wait_for_eks]
   cluster_name = module.eks.cluster_name
   kubeconfig   = module.eks.kubeconfig
 }
