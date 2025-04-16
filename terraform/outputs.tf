@@ -3,5 +3,5 @@ output "eks_cluster_name" {
 }
 
 output "k8s_app_url" {
-  value = module.k8s_app.app_url
+  value = module.k8s-app.app_url
 }

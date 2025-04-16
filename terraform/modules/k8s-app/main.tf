@@ -25,8 +25,8 @@ resource "kubernetes_deployment" "app" {
       spec {
         container {
           name  = "simple-time-app"
-          image = "public.ecr.aws/bitnami/python:3.10"
-          command = ["python", "-m", "http.server", "8000"]
+          image = "079892728706.dkr.ecr.us-east-1.amazonaws.com/simple-time-service:8372415580e21c9c021de99248f528071c785b09"
+          command = ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
           port {
             container_port = 8000
           }

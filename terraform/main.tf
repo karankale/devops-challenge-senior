@@ -50,8 +50,8 @@ module "eks" {
   public_subnet_ids  = module.vpc.public_subnet_ids
 }
 
-module "k8s_app" {
-  source = "./modules/k8s_app"
+module "k8s-app" {
+  source = "./modules/k8s-app"
   depends_on = [null_resource.wait_for_eks]  
   cluster_name = module.eks.cluster_name
   kubeconfig   = module.eks.kubeconfig
