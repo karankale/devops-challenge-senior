@@ -1,51 +1,59 @@
-terraform {
-#   backend "s3" {
-#     bucket         = "your-tf-state-bucket-name"
-#     key            = "simple-time-service/terraform.tfstate"
-#     region         = "us-east-1"
-#     encrypt        = true
-#     dynamodb_table = "terraform-locks"
-#   }
-  backend "local" {
-    
-  }
+# Attach ELB and ECR read-only policies to EKS node group role
+resource "aws_iam_role_policy_attachment" "eks_node_elb" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = module.eks.node_group_iam_role_name
+}
 
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
+resource "aws_iam_role_policy_attachment" "eks_node_ecr" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = module.eks.node_group_iam_role_name
+}
+
+resource "aws_eks_access_entry" "admin" {
+  cluster_name  = module.eks.cluster_name
+  principal_arn = var.eks_admin_iam_principal_arn
+  type          = "STANDARD"
+}
+
+resource "aws_eks_access_policy_association" "admin_policy" {
+  cluster_name       = module.eks.cluster_name
+  policy_arn         = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn      = aws_eks_access_entry.admin.principal_arn
+  access_scope {
+    type = "cluster"
   }
 }
 
-provider "aws" {
-  region = "us-east-1"
+resource "null_resource" "wait_for_eks" {
+  depends_on = [module.eks]
+
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "Waiting for EKS cluster to become ready..."
+      for i in {1..60}; do
+        aws eks describe-cluster --name ${module.eks.cluster_name} --region ${var.aws_region} \
+        --query 'cluster.status' --output text | grep -q ACTIVE && break || sleep 10
+      done
+    EOT
+    interpreter = ["bash", "-c"]
+  }
 }
 
 module "vpc" {
-  source       = "./modules/vpc"
-  cluster_name = var.cluster_name
+  source = "./modules/vpc"
 }
 
 module "eks" {
-  source        = "./modules/eks"
-  cluster_name  = var.cluster_name
-  vpc_id        = module.vpc.vpc_id
-  subnet_ids    = module.vpc.private_subnets
+  source = "./modules/eks"
+
+  vpc_id             = module.vpc.vpc_id
+  private_subnet_ids = module.vpc.private_subnet_ids
+  public_subnet_ids  = module.vpc.public_subnet_ids
 }
 
 module "k8s_app" {
-  source           = "./modules/k8s-app"
-  cluster_endpoint = module.eks.cluster_endpoint
-  cluster_ca       = module.eks.cluster_ca
-  cluster_token    = module.eks.cluster_token
-  container_image  = var.container_image
-}
-
-module "alb_ingress" {
-  source           = "./modules/alb-ingress"
-  cluster_endpoint = module.eks.cluster_endpoint
-  cluster_ca       = module.eks.cluster_ca
-  cluster_token    = module.eks.cluster_token
-  service_name     = module.k8s_app.service_name
+  source = "./modules/k8s_app"
+  depends_on = [null_resource.wait_for_eks]  
+  cluster_name = module.eks.cluster_name
+  kubeconfig   = module.eks.kubeconfig
 }

@@ -22,6 +22,7 @@ override.tf.json
 .terraform.tfstate.*
 # Terraform plan output
 *.plan
+*plan
 
 # Sensitive secrets or credentials files (user-specific)
 .terraform.lock.hcl

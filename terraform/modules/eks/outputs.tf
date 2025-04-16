@@ -1,11 +1,14 @@
-output "cluster_endpoint" {
-  value = module.eks.cluster_endpoint
+output "cluster_name" {
+  value = module.eks.cluster_name
 }
 
-output "cluster_ca" {
-  value = module.eks.cluster_certificate_authority_data
+output "kubeconfig" {
+  value = {
+    endpoint                   = module.eks.cluster_endpoint
+    certificate_authority_data = module.eks.cluster_certificate_authority_data
+  }
 }
 
-output "cluster_token" {
-  value = data.aws_eks_cluster_auth.this.token
+output "node_group_iam_role_name" {
+  value = module.eks.eks_managed_node_groups["default"].iam_role_name
 }
