@@ -28,7 +28,7 @@ resource "kubernetes_deployment" "app" {
           image = "079892728706.dkr.ecr.us-east-1.amazonaws.com/simple-time-service:8372415580e21c9c021de99248f528071c785b09"
           command = ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
           port {
-            container_port = 8000
+            container_port = 5000
           }
         }
       }
@@ -48,7 +48,7 @@ resource "kubernetes_service" "app_svc" {
 
     port {
       port        = 80
-      target_port = 8000
+      target_port = 5000
     }
 
     type = "LoadBalancer"
