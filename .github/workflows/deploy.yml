@@ -32,11 +32,12 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG src
+          echo "IMAGE_NAME=${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}" >> $GITHUB_ENV
 
       - name: Scan Image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ env.REGISTRY}}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+          image-ref: ${{ env.IMAGE_NAME }}
           format: 'table'
           exit-code: '0'
           ignore-unfixed: true
