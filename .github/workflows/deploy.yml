@@ -4,8 +4,6 @@ on:
   push:
     # branches: [ main ] - Test build on push
 
-env:
-
 jobs:
   docker-build-and-publish:
     runs-on: ubuntu-latest
