@@ -69,22 +69,117 @@ aws configure
 - Output format (e.g. `json`)
 
 ---
+## 4. Terraform Remote Backend Bootstrap with GitHub Actions Flow
 
-## 4. Terraform Infrastructure (Manual Deploy)
+This guide explains how to **manually initialize the Terraform remote backend (S3 + DynamoDB)** using Terraform code (one-time setup), and then shift to using **GitHub Actions for all future apply steps**.
 
-```bash
-cd simple-time-service-infra
-terraform init
-terraform plan -var="container_image=karankale/simple-time-service:v1"
-terraform apply -var="container_image=karankale/simple-time-service:v1" -auto-approve
+---
+
+### Why This Pattern?
+
+- Backend (S3 + DynamoDB) must exist **before** Terraform can store state remotely.
+- Terraform cannot manage its own backend on first run.
+- GitHub Actions CI/CD relies on that remote backend to work across environments.
+
+---
+
+###  Overview
+
+1. Bootstrap backend using `bootstrap-backend.tf` locally (runs with local state)
+2. Enable backend block in `backend.tf`
+3. GitHub Actions takes over from then on — using remote state
+
+---
+
+###  Prerequisites
+
+- AWS CLI configured (`aws configure`)
+- Terraform >= 1.3
+- GitHub Secrets configured:
+  - `AWS_ACCESS_KEY_ID`
+  - `AWS_SECRET_ACCESS_KEY`
+
+---
+
+###  Step 1: Manually Create Terraform Backend
+
+In your repo:
+
+```
+terraform/
+├── state
+    ├──backend.tf
+├── bootstrap-backend.tf
 ```
 
-This will:
+###  Run Locally (first time only):
 
-- Create VPC with public/private subnets
-- Deploy EKS cluster + managed node group
-- Deploy the container app
-- Expose the app using LoadBalancer service
+```bash
+cd terraform/state
+terraform init -backend=false
+terraform apply -auto-approve -target=aws_s3_bucket.tf_state -target=aws_dynamodb_table.tf_lock
+```
+
+This creates:
+- `terraform-state-<unique>` S3 bucket
+- `terraform-locks` DynamoDB table
+
+---
+
+### Step 2: Enable the Remote Backend
+
+Now go to terraform root directory `backend.tf`:
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket         = "terraform-state-kkco-2025"
+    key            = "simple-time-service/terraform.tfstate"
+    region         = "us-east-1"
+    encrypt        = true
+    dynamodb_table = "terraform-locks"
+  }
+}
+```
+
+Then run:
+
+```bash
+terraform init
+```
+
+Terraform will ask to copy existing local state to the remote backend
+ Say **yes**
+
+---
+
+### Step 3: From Now On — Use GitHub Actions
+
+Your GitHub Actions workflow (e.g. `.github/workflows/deploy-terraform.yml`) will:
+
+- Configure AWS credentials
+- Initialize Terraform with the remote backend
+- Plan and apply infra using the remote state
+
+Example job snippet:
+
+```yaml
+- name: Terraform Init & Apply
+  working-directory: ./simple-time-service-infra
+  run: |
+    terraform init
+    terraform plan -out=tfplan
+    terraform apply -auto-approve tfplan
+```
+
+---
+
+##  Optional Cleanup
+
+```bash
+mv bootstrap-backend.tf bootstrap/
+echo "bootstrap-backend.tf" >> .gitignore
+```
 
 ---
 
@@ -101,16 +196,5 @@ Then visit:
 ```
 http://<your-lb-dns-name>/
 ```
-
----
-
-## 6. Troubleshooting
-
-- If `kubectl get nodes` fails with timeout:
-  - You may be on a public machine accessing a private EKS endpoint
-  - Use a VPN, bastion host, or enable public access temporarily
-
-- If nodes are not ready:
-  - Terraform includes a `null_resource` to wait for node readiness
 
 ---
