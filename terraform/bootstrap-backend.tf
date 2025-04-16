@@ -1,6 +1,5 @@
 resource "aws_s3_bucket" "tf_state" {
   bucket = "terraform-state-kkco-2025"
-  acl    = "private"
 
   versioning {
     enabled = true
