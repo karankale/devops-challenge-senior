@@ -44,6 +44,6 @@ jobs:
           vuln-type: 'os,library'
 
       - name: Push Docker Image to Amazon ECR
-        run: docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+        run: docker push $IMAGE_NAME
 
 
