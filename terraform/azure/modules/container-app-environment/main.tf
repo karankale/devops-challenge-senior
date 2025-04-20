@@ -5,4 +5,7 @@ resource "azurerm_container_app_environment" "this" {
 
   logs_destination           = "log-analytics"
   log_analytics_workspace_id = var.log_analytics_workspace_id
+  lifecycle {
+    create_before_destroy = true
+  }
 }
