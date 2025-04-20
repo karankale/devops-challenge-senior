@@ -1,7 +1,7 @@
 variable "subscription_id" {
   description = "Azure Subscription ID to deploy into"
   type        = string
-  default = "b86f730d-9e28-4dcc-957b-191526d42b14"
+  default     = "b86f730d-9e28-4dcc-957b-191526d42b14"
 }
 
 variable "prefix" {

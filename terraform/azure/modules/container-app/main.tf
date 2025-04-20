@@ -19,8 +19,8 @@ resource "azurerm_container_app" "this" {
     target_port      = var.target_port
     transport        = "auto"
     traffic_weight {
-      percentage     = 100
+      percentage      = 100
       revision_suffix = "v1"
-      }
+    }
   }
 }
