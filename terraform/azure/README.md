@@ -34,8 +34,3 @@ terraform apply
 
 - `container_app_url`: The public URL of the Container App (e.g., `https://aca-app.<region>.azurecontainerapps.io`)
 
-## Assumptions
-
-- You have sufficient permissions to create Resource Groups, Log Analytics Workspaces, and Container Apps.
-- Azure CLI is authenticated.
-- No existing resources conflict with the names `<prefix>-rg`, `<prefix>-law`, etc.
